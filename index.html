@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAST RADIO | USMS | GTAHUB.GG</title>
+
+    <link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Estilo principal -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Fondo oscuro base */
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: 'Segoe UI', Roboto, sans-serif;
+          background-image: url('imagenes/USMS2.png');
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          color: #f9fafb;
+          line-height: 1.6;
+          transition: background-color 0.5s ease, color 0.5s ease;
+          position: relative;
+        }
+    
+        /* Overlay negro semitransparente */
+        body::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.6);
+          z-index: -1;
+        }
+    
+        /* Contenedor centrado */
+        .welcome-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          text-align: center;
+          padding: 2rem;
+          z-index: 2;
+          position: relative;
+        }
+    
+        .welcome-title {
+          font-size: 2.5rem;
+          color: white;
+          margin-bottom: 1rem;
+          letter-spacing: 1px;
+        }
+    
+        .welcome-text {
+          font-size: 1.1rem;
+          color: #d1d5db;
+          max-width: 500px;
+          margin-bottom: 2rem;
+          line-height: 1.6;
+        }
+    
+        .btn-enter {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          font-size: 1.1rem;
+          color: white;
+          background-color: var(--primary-light);
+          border-radius: 9999px;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+          transition: all 0.3s ease;
+          font-weight: 600;
+        }
+    
+        .btn-enter:hover {
+          transform: translateY(-2px);
+          background-color: #2563eb;
+          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+        }
+    
+        /* Controles de volumen */
+        .audio-controls {
+          margin-top: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.9rem;
+          color: #fbbf24;
+        }
+    
+        .audio-controls input[type="range"] {
+          width: 100px;
+          height: 6px;
+          -webkit-appearance: none;
+          appearance: none;
+          background: #d1d5db;
+          border-radius: 5px;
+        }
+    
+        .audio-controls input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 14px;
+          height: 14px;
+          background: #3b82f6;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+    
+        .audio-icon {
+          font-size: 1.1rem;
+          cursor: pointer;
+        }
+    
+        /* Mensaje de redirección */
+        .auto-redirect {
+          margin-top: 1rem;
+          font-size: 0.9rem;
+          color: #fbbf24;
+          opacity: 0.9;
+        }
+    
+        /* Footer fijo */
+        footer {
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+          text-align: center;
+          font-size: 0.875rem;
+          color: #d1d5db;
+          z-index: 999;
+          background-color: transparent;
+          padding: 0.75rem 1.5rem;
+        }
+    
+        /* Notificación restringida */
+        .restricted-notification {
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(30, 30, 30, 0.95);
+          color: #f87171;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-size: 1rem;
+          z-index: 99999;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+    
+        .restricted-notification.show {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+    <script src="assets/discord-button.js"></script>
+    <!-- Reproductor de audio invisible -->
+    <audio id="background-music" src="sound_main.mp3" preload="auto" loop></audio>
+
+    <!-- Notificación de restricción -->
+    <div id="restricted-notification" class="restricted-notification">
+        ⚠️ El uso no autorizado de este contenido está prohibido.
+    </div>
+
+    <!-- Contenido principal -->
+    <main class="welcome-container" id="page-content">
+        <h1 class="welcome-title">BIENVENIDO A FAST RADIO — VERSIÓN "USMS"</h1>
+        <p class="welcome-text">
+            ¡Deputy Marshall! Esta herramienta está diseñada para agilizar tu comunicación por radio. Usa mensajes estandarizados mientras estás en servicio activo.
+        </p>
+        <a href="main.html" class="btn-enter" id="redirectBtn">👉 Ir a la herramienta</a>
+        <div class="auto-redirect" id="countdown">⏳ Redirigiendo automáticamente en 60 segundos...</div>
+
+        <!-- Controles de volumen -->
+        <div class="audio-controls">
+            <span id="volumeIcon" class="audio-icon">🔊</span>
+            <input type="range" min="0" max="1" step="0.1" value="0.1" id="volumeControl">
+        </div>
+    </main>
+
+    <!-- Footer fijo -->
+    <footer>
+        <p>© 2025 FAST RADIO | VERSIÓN USMS GTAHUB.GG | Creado por <strong>Sergioo</strong> | Discord: sergioomdz</p>
+    </footer>
+
+    <script>
+        // Bloquear clic derecho y mostrar notificación
+        document.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+          showRestrictionNotification("⚠️ El uso no autorizado de este contenido está prohibido (Click derecho bloqueado)");
+        });
+    
+        // Bloquear DevTools (F12, Ctrl+Shift+I, etc.)
+        document.addEventListener("keydown", function (e) {
+          if (
+            e.key === "F12" ||
+            (e.ctrlKey && e.shiftKey && e.key === "I") ||
+            (e.ctrlKey && e.shiftKey && e.key === "C") ||
+            (e.ctrlKey && e.shiftKey && e.key === "J") ||
+            e.keyCode === 123
+          ) {
+            e.preventDefault();
+            showRestrictionNotification("🚫 Acceso restringido a herramientas de desarrollo");
+          }
+        });
+    
+        // Mostrar notificación
+        function showRestrictionNotification(message) {
+          const notification = document.getElementById("restricted-notification");
+          if (!notification) return;
+    
+          notification.textContent = message;
+          notification.classList.add("show");
+    
+          setTimeout(() => {
+            notification.classList.remove("show");
+          }, 2500);
+        }
+    
+        // Configuración de música
+        const music = document.getElementById("background-music");
+        const volumeControl = document.getElementById("volumeControl");
+        const volumeIcon = document.getElementById("volumeIcon");
+        const countdownEl = document.getElementById("countdown");
+    
+        function updateVolumeIcon(volume) {
+          if (volume <= 0) {
+            volumeIcon.textContent = "🔇";
+          } else if (volume < 0.5) {
+            volumeIcon.textContent = "🔈";
+          } else {
+            volumeIcon.textContent = "🔊";
+          }
+        }
+    
+        window.addEventListener("load", () => {
+          music.volume = 0.1;
+          volumeControl.value = music.volume;
+    
+          const playPromise = music.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => {
+              console.log("Reproducción automática bloqueada.", err);
+              document.body.addEventListener("click", () => {
+                music.play().catch(e => console.log("No se pudo reproducir:", e));
+              }, { once: true });
+            });
+          }
+    
+          updateVolumeIcon(music.volume);
+    
+          let timeLeft = 60;
+          const interval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft >= 0) {
+              countdownEl.textContent = `⏳ Redirigiendo en ${timeLeft} segundos...`;
+            } else {
+              clearInterval(interval);
+              window.location.href = "main.html";
+            }
+          }, 1000);
+        });
+    
+        // Control de mute/unmute
+        volumeIcon.addEventListener("click", () => {
+          if (music.muted) {
+            music.muted = false;
+            music.volume = volumeControl.value || 0.1;
+            updateVolumeIcon(music.volume);
+          } else {
+            music.muted = true;
+            volumeIcon.textContent = "🔇";
+          }
+        });
+    
+        // Cambiar volumen manualmente
+        volumeControl.addEventListener("input", (e) => {
+          const vol = parseFloat(e.target.value);
+          music.volume = vol;
+          music.muted = false;
+          updateVolumeIcon(vol);
+        });
+    
+        // Efecto ripple opcional en botón
+        const redirectBtn = document.getElementById("redirectBtn");
+        redirectBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = this.getAttribute("href");
+        });
+    </script>
+</body>
+
+</html>

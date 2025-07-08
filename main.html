@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAST RADIO | USMS | GTAHUB.GG</title>
+    <meta name="description" content="Radio rápida para USMS en GTARoleplay (GTAHUB.GG). Copia mensajes con tu callsign personalizado.">
+    <meta name="author" content="Sergioo">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .category-nav {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          justify-content: center;
+          margin: 1rem 0 1.5rem;
+        }
+        .category-btn {
+          background-color: var(--bg-secondary);
+          color: var(--text-primary);
+          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .category-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .category-btn.active {
+          background-color: var(--primary-light);
+          color: white;
+        }
+        .thank-you {
+          display: block !important;
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+        }
+        /* Estilos para el loading indicator */
+        #loading-indicator {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 20px;
+          border-radius: 5px;
+          z-index: 999;
+        }
+        /* Estilos para el mensaje de acceso denegado */
+        .access-denied-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #1a1a1a;
+          color: #ff4444;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          font-family: 'Roboto Mono', monospace;
+          text-align: center;
+          padding: 20px;
+        }
+        .access-denied-overlay h1 {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+        }
+        .access-denied-overlay p {
+          font-size: 1.2rem;
+          max-width: 600px;
+          margin-bottom: 2rem;
+        }
+        .access-denied-overlay .ip-info {
+          margin-top: 2rem;
+          color: #888;
+          font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+    <div class="realtime-clock" id="clock">HORA GTAHUB: --:--:--</div>
+    <!-- Footer fijo -->
+    <footer>
+        <p>© 2025 FAST RADIO | VERSIÓN USMS GTAHUB.GG | Creado por <strong>Sergioo</strong> | Discord: sergioomdz</p>
+    </footer>
+    <!-- Loading indicator -->
+    <div id="loading-indicator" style="display: none;">
+        <p>Verificando acceso...</p>
+    </div>
+
+    <!-- Overlay de acceso denegado -->
+    <div id="access-denied-overlay" class="access-denied-overlay" style="display: none;">
+        <h1>ACCESO DENEGADO</h1>
+        <p>No estás autorizado para acceder a este recurso, es privado. Tu dirección IP no está en la whitelist.</p>
+        <p>Esta herramienta es de pago y privada, para acceder debes adquirir tu plan en https://sergiooomdz.github.io/FastRadio/precios.html</p>
+        <p>Si crees que esto es un error, por favor contacta mediante nuestro servidor de Discord. [https://discord.gg/abRpRdvYuX]</p>
+        <div class="ip-info">Tu dirección IP pública: <span id="client-ip">...</span></div>
+    </div>
+
+    <!-- Contenido original (todo el contenido de tu página) -->
+    <div id="original-content" style="display: none;">
+        <div class="beta-overlay">
+            <p>PAID VERSION</p>
+            <!-- Notificación de restricción -->
+            <div id="restricted-notification" class="restricted-notification">
+                ⚠️ El uso no autorizado de este contenido está prohibido. (Click derecho bloqueado)
+            </div>
+        </div>
+
+        <!-- Menú Hamburguesa -->
+        <div id="menuToggle">
+            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </div>
+        <div id="notification" class="notification"></div>
+        <div id="offline-notification" class="notification">⚠️ Estás desconectado</div>
+        <!-- Menú Lateral -->
+        <div id="sideMenu">
+            <div class="menu-item" data-section="info">ℹ️ INFORMACIÓN</div>
+            <div class="menu-item" data-section="contacto">📩 CONTACTO</div>
+            <div class="menu-item" data-section="changelog">📝 CHANGELOG</div>
+            <div class="menu-item" data-section="feedback">💬 SUGERENCIAS</div>
+            <div class="menu-item" data-section="aviso">⚖️ AVISO LEGAL</div>
+        </div>
+
+        <!-- Contenedor Principal -->
+        <div id="main-content">
+            <header>
+                <h1>FAST RADIO | VERSIÓN USMS | GTAHUB.GG</h1>
+                <div id="activeCallsign" class="active-callsign">👤 <strong>CALLSIGN ACTUAL: N/A</strong></div>
+            </header>
+
+            <main class="container">
+                <label for="callsign">ESCRIBE EL CALLSIGN QUE USARAS:</label>
+                <input type="text" id="callsign" placeholder="Ejemplo: 32L65 (Máximo 10 caracteres)" aria-label="Callsign" autocomplete="off" oninput="validateCallsign(this.value)" data-scroll="fade-up" />
+                <label for="search">BUSCAR MENSAJE RÁPIDO:</label>
+                <input type="text" id="search" placeholder="Buscar por palabra clave..." aria-label="Buscar mensaje rápido" autocomplete="off" oninput="filterMessages()" data-scroll="fade-up" />
+                <div class="category-nav" id="categoryNav"></div>
+                <section id="messages"></section>
+                <div class="empty-state" id="empty-state" data-scroll="fade-up">
+                    Introduce tu CALLSIGN arriba para generar los mensajes predefinidos.
+                </div>
+            </main>
+        </div>
+
+        <!-- Secciones del Menú -->
+        <div id="sections-container">
+
+            <!-- Sección Feedback -->
+            <div id="feedback" class="section">
+                <div class="section-header">
+                    <h1>💬 DEJA TU SUGERENCIA</h1>
+                </div>
+                <div class="section-content feedback-container">
+                    <p>¿Tienes una idea nueva o quieres reportar un error? ¡Escríbela aquí!</p>
+                    <label for="feedback-callsign"><strong>NOMBRE DE USUARIO:</strong></label>
+                    <input type="text" id="feedback-callsign" placeholder="Ejemplo: Sergio" maxlength="35" oninput="validateCallsignInput(this.value)" />
+
+                    <label for="feedback-text"><strong>MENSAJE:</strong></label>
+                    <textarea id="feedback-text" rows="6" placeholder="Escribe tu sugerencia o reporte..."></textarea>
+
+                    <button onclick="submitFeedback()" class="back-btn">📤 Enviar sugerencia</button>
+                </div>
+                <button onclick="backToMain()" class="back-btn">← Volver atrás</button>
+            </div>
+
+            <!-- Sección Información -->
+            <div id="info" class="section">
+                <div class="section-header">
+                    <h1>INFORMACIÓN</h1>
+                </div>
+                <div class="section-content info-container">
+                    <div class="info-card">
+                        <h2>¿Qué es Fast Radio USMS?:</h2>
+                        <p>Fast Radio es una herramienta diseñada para agilizar las comunicaciones escritas de LEO dentro de GTAHUB.GG, en este caso concreto de USMS.</p>
+
+                        <h3>🎯 Objetivo:</h3>
+                        <p>Permitir a los jugadores enviar mensajes rápidos y estandarizados mediante el uso de plantillas predefinidas, acelerando la comunicación durante situaciones críticas o rutinarias.</p>
+
+                        <h3>⚙️ Funcionalidades principales:</h3>
+                        <ul class="features-list">
+                            <li><i class="fas fa-check-circle"></i> Personalización con tu <strong>CALLSIGN</strong></li>
+                            <li><i class="fas fa-check-circle"></i> Mensajes organizados por categorías</li>
+                            <li><i class="fas fa-check-circle"></i> Búsqueda rápida por palabras clave</li>
+                            <li><i class="fas fa-check-circle"></i> Copiado automático al portapapeles</li>
+                            <li><i class="fas fa-check-circle"></i> Hora HUB actualizada en tiempo real (UTC+2)</li>
+                        </ul>
+
+                        <h3>💡 ¿Cómo usarla?:</h3>
+                        <ol class="usage-steps">
+                            <li>Escribe tu CALLSIGN arriba.</li>
+                            <li>Usa la barra de búsqueda o navega por categorías.</li>
+                            <li>Haz clic en el botón "Copiar" para pegar directamente en Discord o el chat del juego.</li>
+                        </ol>
+                    </div>
+
+                    <button onclick="backToMain()" class="back-btn">← Volver atrás</button>
+                </div>
+            </div>
+
+            <!-- Sección Contacto -->
+            <div id="contacto" class="section">
+                <div class="section-header">
+                    <h1>CONTACTO</h1>
+                </div>
+                <div class="section-content contact-container">
+                    <div class="contact-card">
+                        <h2>¿Tienes dudas o sugerencias?</h2>
+                        <p>Estoy aquí para ayudarte. Puedes contactarme por cualquiera de los siguientes medios:</p>
+
+                        <ul class="contact-list">
+                            <li><i class="fab fa-discord"></i> <strong>Discord de Soporte:</strong> <a href="https://discord.gg/abRpRdvYuX" target="_blank">Discord</a></li>
+                            <li><i class="fab fa-github"></i> <strong>GitHub:</strong> <a href="https://github.com/sergioomdz " target="_blank">Ver mis proyectos</a></li>
+                            <li><i class="fas fa-briefcase"></i> <strong>Freelance:</strong> Disponible para nuevos proyectos</li>
+                        </ul>
+
+                        <p class="thank-you-text"><strong>Gracias por usar Fast Radio ❤️</strong></p>
+                    </div>
+
+                    <button onclick="backToMain()" class="back-btn">← Volver atrás</button>
+                </div>
+            </div>
+
+            <!-- Sección Changelog -->
+            <div id="changelog" class="section">
+                <div class="section-header">
+                    <h1>HISTORIAL DE CAMBIOS</h1>
+                </div>
+                <div class="section-content changelog-container">
+                    <div class="changelog-entry">
+                        <h3><span class="version-badge">v0.1.0</span> <span class="release-date">8 Julio 2025</span></h3>
+                        <ul>
+                            <li><span class="tag dev">DESARROLLO</span> Inicio del proyecto Fast Radio USMS</li>
+                            <li><span class="tag new">NUEVO</span> Sistema de categorías implementado</li>
+                            <li><span class="tag internal">INTERNO</span> Se usa la pagina base como duplicado de la versión de LSSD</li>
+                            <li><span class="tag internal">INTERNO</span> Uso de localStorage para guardar datos</li>
+                        </ul>
+                    </div>
+                    <button onclick="backToMain()" class="back-btn">← Volver atrás</button>
+                </div>
+            </div>
+
+            <!-- Sección Aviso Legal -->
+            <div id="aviso" class="section">
+                <div class="section-header">
+                    <h1>AVISO LEGAL</h1>
+                </div>
+                <div class="section-content legal-container">
+                    <div class="legal-card">
+                        <h3>📌 Uso autorizado:</h3>
+                        <p>El acceso y utilización de esta aplicación está restringido únicamente a las personas que pagaron por acceder. Cualquier uso fuera de este contexto es considerado no autorizado.</p>
+
+                        <h3>⚠️ Prohibida la redistribución:</h3>
+                        <p>Este sitio web, su código fuente y sus contenidos son propiedad intelectual del desarrollador. Queda prohibida su copia, modificación o redistribución sin consentimiento explícito.</p>
+
+                        <h3>⛔ Uso malintencionado:</h3>
+                        <p>El uso indebido, malicioso o con fines de ingeniería inversa de esta herramienta puede resultar en acciones legales, administrativas o técnicas en tu contra.</p>
+
+                        <h3>🌐 No afiliado:</h3>
+                        <p>Este sitio NO tiene relación oficial ni patrocinio directo con <strong>GAMERSHUB.GG</strong> u otros servidores derivados ni con R*ckstar Games. Es una herramienta independiente creada por y para usuarios de roleplay.</p>
+                    </div>
+                    <button onclick="backToMain()" class="back-btn">← Volver atrás</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Definir elementos primero
+            const elements = {
+              callsign: document.getElementById('callsign'),
+              messages: document.getElementById('messages'),
+              emptyState: document.getElementById('empty-state'),
+              notification: document.getElementById('notification'),
+              offlineNotification: document.getElementById('offline-notification'),
+              categoryNav: document.getElementById('categoryNav'),
+              clock: document.getElementById('clock'),
+              activeCallsign: document.getElementById('activeCallsign'),
+              mainContent: document.getElementById('main-content'),
+              sectionsContainer: document.getElementById('sections-container'),
+              sideMenu: document.getElementById('sideMenu'),
+              originalContent: document.getElementById('original-content'),
+              loadingIndicator: document.getElementById('loading-indicator'),
+              accessDeniedOverlay: document.getElementById('access-denied-overlay'),
+              clientIpSpan: document.getElementById('client-ip'),
+              restrictedNotification: document.getElementById('restricted-notification')
+            };
+        
+            let allMessagesByCategory = {}, currentCategory = null;
+        
+            // URL del worker con la whitelist
+            const WHITELIST_WORKER_URL = 'https://fastradio-usms.sergioramonlopezmadrid.workers.dev/';
+        
+            // Función para mostrar/ocultar elementos
+            function showAccessDenied(ip) {
+              if (elements.clientIpSpan) elements.clientIpSpan.textContent = ip || 'No detectada';
+              if (elements.accessDeniedOverlay) elements.accessDeniedOverlay.style.display = 'flex';
+              if (elements.originalContent) elements.originalContent.style.display = 'none';
+              if (elements.loadingIndicator) elements.loadingIndicator.style.display = 'none';
+            }
+        
+            function showApplication() {
+              if (elements.accessDeniedOverlay) elements.accessDeniedOverlay.style.display = 'none';
+              if (elements.originalContent) elements.originalContent.style.display = 'block';
+              if (elements.loadingIndicator) elements.loadingIndicator.style.display = 'none';
+            }
+
+            // Tu URL del webhook de Discord
+const DISCORD2_WEBHOOK_URL = 'https://discord.com/api/webhooks/1390931568637513829/Ddwebc06-thvHIK-6vuLzAwnFzAWr-mgChPkfA0GiVo1Rxlx6RDDVKPFpia-PJugvYfN ';
+
+// Función principal para verificar acceso
+async function checkAccess() {
+  try {
+    if (elements.loadingIndicator) elements.loadingIndicator.style.display = 'block';
+
+    // Obtener información detallada del cliente
+    const ipInfoResponse = await fetch('https://ipinfo.io/json ');
+    const ipData = await ipInfoResponse.json();
+
+    const clientIp = ipData.ip;
+    const country = ipData.country || 'Desconocido';
+    const region = ipData.region || 'Desconocido';
+    const city = ipData.city || 'Desconocido';
+    const org = ipData.org || 'Desconocido';
+    const loc = ipData.loc ? ipData.loc.split(',') : [];
+    const lat = loc[0] || 'N/A';
+    const lon = loc[1] || 'N/A';
+    const timezone = ipData.timezone || 'Desconocido';
+
+    const accessTime = new Date().toISOString();
+
+    console.log("Datos del cliente:", ipData);
+
+    // Obtener lista blanca
+    const whitelistResponse = await fetch(WHITELIST_WORKER_URL, {
+      cache: 'no-cache',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!whitelistResponse.ok) throw new Error('Error al obtener whitelist');
+
+    const whitelistData = await whitelistResponse.json();
+    const allowedIps = whitelistData.allowed_ips || [];
+
+    const isAllowed = allowedIps.includes(clientIp);
+
+    // Campos del embed organizados por grupos
+    const fields = [
+      {
+        name: "📌 Información General",
+        value: "\u200B", // Separador invisible
+        inline: false
+      },
+      {
+        name: "🌐 DIRECCIÓN IP:",
+        value: `|| ${clientIp} ||`,
+        inline: true
+      },
+      {
+        name: "📍 UBICACIÓN:",
+        value: `${city}, ${region}, ${country}`,
+        inline: true
+      },
+      {
+        name: "🌍 GEOLOCALIZACIÓN:",
+        value: `Lat: ${lat} | Lon: ${lon}`,
+        inline: true
+      },
+      {
+        name: "⏰ ZONA HORARIA:",
+        value: timezone,
+        inline: true
+      },
+      {
+        name: "📅 FECHA Y HORA:",
+        value: new Date().toLocaleString(),
+        inline: true
+      }
+    ];
+
+    // Colores según tipo de evento
+    const embedColor = isAllowed ? 0x00c853 : 0xd50000; // Verde / Rojo
+
+    // Crear embed dinámico
+    const embed = {
+      title: isAllowed ? "🟢 ACCESO PERMITIDO USMS" : "🔴 ACCESO DENEGADO USMS",
+      description: isAllowed 
+        ? "**Se ha detectado un acceso autorizado a FAST RADIO USMS. (IP EN LA WHITELIST)**" 
+        : "**Se ha intentado acceder sin autorización a tu sitio web. (IP NO AUTORIZADA)**",
+      color: embedColor,
+      thumbnail: {
+        url: isAllowed
+          ? "https://i.imgur.com/1lI0iLq.png " // Check mark
+          : "https://i.imgur.com/YjboXFO.png " // Warning sign
+      },
+      fields: fields,
+      footer: {
+        text: "FAST RADIO | Sistema de Seguridad Automática",
+        icon_url: "https://i.imgur.com/rj8uAJ1.png " // Logo pequeño
+      },
+      timestamp: accessTime
+    };
+
+    // Enviar webhook a Discord
+    const webhookResponse = await fetch(DISCORD2_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: isAllowed 
+          ? "🔔 **NUEVO ACCESO AUTORIZADO**" 
+          : "⚠️ **INTENTO DE ACCESO NO AUTORIZADO**",
+        username: "FAST RADIO | USMS | GTAHUB",
+        avatar_url: isAllowed 
+          ? "https://i.imgur.com/1lI0iLq.png " // Avatar verde
+          : "https://i.imgur.com/YjboXFO.png ", // Avatar rojo
+        embeds: [embed]
+      })
+    });
+
+    if (!webhookResponse.ok) {
+      console.error(`Fallo al enviar webhook (${isAllowed ? 'acceso permitido' : 'acceso denegado'}):`, webhookResponse.status);
+    } else {
+      console.log(`Webhook ${isAllowed ? 'de acceso permitido' : 'de acceso denegado'} enviado.`);
+    }
+
+    return isAllowed;
+
+  } catch (error) {
+    console.error("Error en checkAccess:", error);
+    return false;
+  }
+}
+                  
+            // Función para inicializar la aplicación
+            function initApplication() {
+              // Ocultar secciones al inicio
+              if (elements.sectionsContainer) elements.sectionsContainer.style.display = 'none';
+              document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+              
+              // Cargar contenido principal
+              loadMessages();
+              updateClock();
+              setInterval(updateClock, 1000);
+              initScrollObserver();
+              
+              const savedCallsign = localStorage.getItem('callsign');
+              if (savedCallsign && elements.activeCallsign) {
+                elements.activeCallsign.textContent = `👤 CALLSIGN ACTUAL: ${savedCallsign}`;
+              }
+            }
+        
+            // Función para volver al contenido principal
+            function backToMain() {
+              if (elements.mainContent) elements.mainContent.style.display = 'block';
+              if (elements.sectionsContainer) elements.sectionsContainer.style.display = 'none';
+            }
+        
+            function submitFeedback() {
+              const callsignInput = document.getElementById('feedback-callsign');
+              const feedbackInput = document.getElementById('feedback-text');
+              const callsign = callsignInput.value.trim();
+              const message = feedbackInput.value.trim();
+        
+              if (!callsign) {
+                showNotification("⚠️ Por favor, escribe tu usuario", true);
+                return;
+              }
+        
+              if (!message) {
+                showNotification("⚠️ Por favor, escribe tu sugerencia", true);
+                return;
+              }
+        
+              // Guardar temporalmente el callsign (opcional)
+              localStorage.setItem('lastFeedbackCallsign', callsign);
+        
+              // Formatear mensaje con nombre
+              const fullMessage = `USUARIO: ${callsign}\n\nMENSAJE:\n${message}`;
+        
+              sendAdvancedNotification('feedback', fullMessage);
+              feedbackInput.value = '';
+              showNotification("✅ Gracias por tu sugerencia, fue recibida con exito");
+        
+              setTimeout(() => backToMain(), 3500);
+            }
+        
+            // Control del menú lateral
+            if (document.getElementById('menuToggle')) {
+              document.getElementById('menuToggle').addEventListener('click', () => {
+                if (elements.sideMenu) elements.sideMenu.classList.toggle('open');
+              });
+            }
+        
+            // Navegación del menú
+            document.querySelectorAll('.menu-item').forEach(item => {
+              item.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+                if (elements.mainContent) elements.mainContent.style.display = 'none';
+                if (elements.sectionsContainer) elements.sectionsContainer.style.display = 'block';
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(sectionId).classList.add('active');
+                if (elements.sideMenu) elements.sideMenu.classList.remove('open');
+              });
+            });
+        
+            async function loadMessages() {
+              try {
+                const response = await fetch('messages.json');
+                if (!response.ok) throw new Error("No se pudo cargar messages.json");
+                allMessagesByCategory = await response.json();
+                generateCategoryButtons();
+                const savedCallsign = localStorage.getItem('callsign');
+                if (savedCallsign && elements.callsign) {
+                  elements.callsign.value = savedCallsign;
+                  showCategory(Object.keys(allMessagesByCategory)[0]);
+                }
+              } catch (err) {
+                console.error("Error al cargar messages.json:", err);
+                showNotification("⚠️ No se pudieron cargar los mensajes", true);
+              }
+            }
+        
+            function generateCategoryButtons() {
+              if (!elements.categoryNav) return;
+              
+              elements.categoryNav.innerHTML = '';
+              Object.keys(allMessagesByCategory).forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = category;
+                btn.onclick = () => showCategory(category);
+                elements.categoryNav.appendChild(btn);
+              });
+            }
+        
+            function showCategory(category) {
+              currentCategory = category;
+              document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === category);
+              });
+              filterAndRender(allMessagesByCategory[category], elements.callsign.value.trim());
+            }
+        
+            function createMessageElement(title, content, originalMsg) {
+              const msgDiv = document.createElement('div');
+              msgDiv.className = 'message visible';
+        
+              const titleEl = document.createElement('div');
+              titleEl.className = 'message-title';
+              titleEl.textContent = title;
+        
+              const contentEl = document.createElement('div');
+              contentEl.className = 'message-content';
+              contentEl.textContent = content;
+        
+              const copyBtn = document.createElement('button');
+              copyBtn.className = 'copy-btn';
+              copyBtn.innerHTML = '📋 Copiar';
+              copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyToClipboard(content);
+                addRippleEffect(copyBtn, e);
+              };
+        
+              msgDiv.append(titleEl, contentEl, copyBtn);
+              return msgDiv;
+            }
+        
+            function filterAndRender(messages, callsign) {
+              if (!elements.messages) return;
+              
+              elements.messages.innerHTML = '';
+              if (!callsign) {
+                if (elements.emptyState) elements.emptyState.style.display = 'block';
+                return;
+              }
+              if (elements.emptyState) elements.emptyState.style.display = 'none';
+        
+              messages.forEach(msg => {
+                const processedMsg = msg.replace(/XXXX/g, callsign);
+                const lines = processedMsg.split('\n');
+                elements.messages.appendChild(
+                  createMessageElement(lines[0], lines.slice(1).join('\n'), msg)
+                );
+              });
+            }
+        
+            function filterMessages() {
+              const search = document.getElementById('search')?.value.toLowerCase();
+              const callsign = elements.callsign?.value.trim();
+              if (!callsign || !search) return;
+        
+              const filtered = [];
+              Object.values(allMessagesByCategory).forEach(cat =>
+                cat.forEach(msg => {
+                  const processed = msg.replace(/XXXX/g, callsign);
+                  if (processed.toLowerCase().includes(search)) filtered.push(processed);
+                })
+              );
+        
+              if (!elements.messages) return;
+              
+              elements.messages.innerHTML = '';
+              if (!filtered.length) {
+                const div = document.createElement('div');
+                div.className = 'message visible';
+                div.textContent = 'No se encontraron mensajes con esa palabra.';
+                elements.messages.appendChild(div);
+                return;
+              }
+        
+              filtered.forEach(msg => {
+                const lines = msg.split('\n');
+                elements.messages.appendChild(
+                  createMessageElement(lines[0] || "Mensaje", lines.slice(1).join('\n') || msg, msg)
+                );
+              });
+            }
+        
+            function copyToClipboard(text) {
+              navigator.clipboard.writeText(text).then(() => {
+                showNotification("📋 Mensaje copiado al portapeles");
+                sendAdvancedNotification('copy', text);
+              }).catch(() => showNotification("⚠️ Error al copiar", true));
+            }
+        
+            function addRippleEffect(button, e) {
+              const ripple = document.createElement('span');
+              const rect = button.getBoundingClientRect();
+              const size = Math.max(button.clientWidth, button.clientHeight);
+              
+              Object.assign(ripple.style, {
+                left: `${e.clientX - rect.left}px`,
+                top: `${e.clientY - rect.top}px`,
+                width: `${size}px`,
+                height: `${size}px`,
+                position: 'absolute',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.4)',
+                transform: 'scale(0)',
+                transition: 'transform 0.6s linear, opacity 0.6s linear',
+                pointerEvents: 'none'
+              });
+              
+              button.appendChild(ripple);
+              setTimeout(() => ripple.remove(), 600);
+            }
+        
+            function showNotification(message, isError = false) {
+              if (!elements.notification) return;
+              
+              elements.notification.textContent = message;
+              elements.notification.classList.toggle('error', isError);
+              elements.notification.classList.add('show');
+              setTimeout(() => elements.notification.classList.remove('show'), 2000);
+            }
+        
+            // Variable para evitar SPAM de mensajes repetidos
+            const lastSent = {};
+        
+            function canSendNotification(type = 'default', cooldown = 10) {
+              const now = Math.floor(Date.now() / 1000);
+              if (!lastSent[type] || now - lastSent[type] > cooldown) {
+                lastSent[type] = now;
+                return true;
+              }
+              return false;
+            }
+        
+            async function sendAdvancedNotification(actionType, actionDetail) {
+              // Evitar spam
+              if (!canSendNotification(actionType, 10)) return;
+        
+              const userInfo = await getUserInfo();
+              const { browser, os } = getDeviceInfo(navigator.userAgent);
+              const now = new Date().toISOString();
+        
+              const isCallsign = actionType === 'callsign';
+              const isFeedback = actionType === 'feedback';
+        
+              const embed = {
+                title: isCallsign 
+                  ? "🚨 NUEVO CALLSIGN INGRESADO:"
+                  : isFeedback
+                    ? "💡 SUGERENCIA RECIBIDA:"
+                    : "📎 MENSAJE COPIADO:",
+                description: isCallsign || isFeedback
+                  ? `\`\`\`${actionDetail.slice(0, 1024)}\`\`\``
+                  : `\`${actionDetail}\``,
+                color: isCallsign ? 3066993 : isFeedback ? 16761867 : 3447003,
+                fields: [
+                  {
+                    name: "📍 DIRECCIÓN IP:",
+                    value: `|| ${userInfo.ip} || (${[userInfo.city, userInfo.region, userInfo.country].filter(Boolean).join(', ')})`,
+                    inline: false
+                  },
+                  {
+                    name: "🌐 DISPOSITIVO:",
+                    value: `**Navegador:** ${browser}\n**Sistema:** ${os}`,
+                    inline: true
+                  },
+                  {
+                    name: "🕒 HORA (UTC):",
+                    value: `<t:${Math.floor(new Date(now).getTime() / 1000)}:F>`,
+                    inline: true
+                  }
+                ],
+                footer: {
+                  text: "FAST RADIO USMS | GTAHUB.GG",
+                  icon_url: "https://i.imgur.com/gpgiABY.png "
+                },
+                timestamp: now
+              };
+        
+              sendToDiscord({ embeds: [embed] });
+            }
+        
+            async function sendToDiscord(payload) {
+              try {
+                const webhookUrl = 'https://discord.com/api/webhooks/1392162436752216195/96H38FXM8AEC6GFoM8mrE9t-fIVhj5pyvVGaokHNPk5A9Cm45-jaj19q9mjU6qjf8Bwf';
+        
+                await fetch(webhookUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(payload)
+                });
+              } catch (err) {
+                console.error('Error enviando a Discord:', err);
+              }
+            }
+        
+            async function getUserInfo() {
+              try {
+                const res = await fetch("https://ipapi.co/json/");
+                if (!res.ok) throw new Error("No se pudo obtener la IP");
+                const data = await res.json();
+                return {
+                  ip: data.ip || "Desconocida",
+                  city: data.city || "",
+                  region: data.region || "",
+                  country: data.country_name || ""
+                };
+              } catch {
+                return { ip: "Desconocida", city: "", region: "", country: "" };
+              }
+            }
+        
+            function getDeviceInfo(ua) {
+              ua = ua.toLowerCase();
+              return {
+                browser: /firefox/.test(ua) ? "Firefox" :
+                       /opr/.test(ua) ? "Opera" :
+                       /edg/.test(ua) ? "Edge" :
+                       /chrome/.test(ua) ? "Chrome/Brave" :
+                       /safari/.test(ua) ? "Safari" : "Desconocido",
+                os: /windows/.test(ua) ? "Windows" :
+                    /mac/.test(ua) ? "macOS" :
+                    /x11/.test(ua) ? "Linux" :
+                    /android/.test(ua) ? "Android" :
+                    /iphone/.test(ua) ? "iOS" : "Desconocido"
+              };
+            }
+        
+            function validateCallsign(value) {
+              const regex = /^[A-Za-z0-9 ]{0,10}$/;
+              if (!regex.test(value)) {
+                showNotification("⚠️ Máximo 10 caracteres permitidos", true);
+                if (elements.callsign) elements.callsign.value = value.replace(/[^A-Za-z0-9 ]/g, '').slice(0, 10);
+                return;
+              }
+              localStorage.setItem('callsign', value);
+              if (currentCategory) showCategory(currentCategory);
+              sendAdvancedNotification('callsign', value);
+              if (elements.activeCallsign) elements.activeCallsign.textContent = value ? `👤 CALLSIGN ACTUAL: ${value}` : '👤 CALLSIGN ACTUAL: N/A';
+            }
+        
+            function updateClock() {
+              const now = new Date();
+              const utcPlus2 = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 7200000);
+              const timeStr = utcPlus2.toISOString().substr(11, 8);
+              if (elements.clock) elements.clock.textContent = `HORA GTAHUB: ${timeStr}`;
+            }
+        
+            function initScrollObserver() {
+              const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                  }
+                });
+              }, { threshold: 0.1 });
+        
+              document.querySelectorAll('[data-scroll]').forEach(el => observer.observe(el));
+            }
+        
+            // Bloquear clic derecho y mostrar notificación
+            document.addEventListener('contextmenu', function (e) {
+              e.preventDefault();
+              if (elements.restrictedNotification) {
+                elements.restrictedNotification.textContent = "⚠️ El uso no autorizado de este contenido está prohibido (Click derecho bloqueado)";
+                elements.restrictedNotification.classList.add('show');
+                setTimeout(() => elements.restrictedNotification.classList.remove('show'), 2500);
+              }
+            });
+        
+            // Opcional: bloquear algunas combinaciones de teclas comunes para abrir DevTools
+            document.addEventListener('keydown', function (e) {
+              // F12, Ctrl+Shift+I, etc.
+              if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && e.key === "I") ||
+                (e.ctrlKey && e.shiftKey && e.key === "C") ||
+                (e.ctrlKey && e.shiftKey && e.key === "J") ||
+                (e.keyCode === 123) // F12
+              ) {
+                e.preventDefault();
+                if (elements.restrictedNotification) {
+                  elements.restrictedNotification.textContent = "🚫 Acceso restringido a herramientas de desarrollo (F12, Ctrl+Shift+I, etc)";
+                  elements.restrictedNotification.classList.add('show');
+                  setTimeout(() => elements.restrictedNotification.classList.remove('show'), 2500);
+                }
+                return false;
+              }
+            });
+        
+            // Evento load principal
+            window.addEventListener('load', async () => {
+              try {
+                const hasAccess = await checkAccess();
+                
+                if (hasAccess) {
+                  showApplication();
+                  initApplication();
+                } else {
+                  const ipResponse = await fetch('https://api.ipify.org?format=json');
+                  const clientIp = (await ipResponse.json()).ip;
+                  showAccessDenied(clientIp);
+                }
+              } catch (error) {
+                console.error("Error inicial:", error);
+                showAccessDenied();
+              }
+            });
+        
+            // Manejo de estado online/offline
+            window.addEventListener('offline', () => {
+              if (elements.notification) elements.notification.classList.remove('show');
+              if (elements.offlineNotification) elements.offlineNotification.classList.add('show');
+            });
+        
+            window.addEventListener('online', () => {
+              if (elements.offlineNotification) elements.offlineNotification.classList.remove('show');
+              showNotification("✅ Vuelves a estar en línea");
+            });
+        </script>
+</body>
+
+</html>

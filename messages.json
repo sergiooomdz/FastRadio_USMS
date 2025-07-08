@@ -1,0 +1,25 @@
+{
+  "INICIO Y FIN DE TURNO": [
+    "INICIO DE SERVICIO\n!XXXX, inicio de turno desde la estación.",
+    "SALIDA DE SERVICIO:\n!XXXX, finalización de turno en la estación."
+  ],
+  "RADIO RUTINARIA": [
+    "CÓDIGO SEIS:\n!XXXX, márcame en código seis sobre [TUS LABORES].",
+    "PAUSA:\n!XXXX, márcame en pausa rutinaria, parada para comer y descanso.",
+    "TRASLADO SOSPECHOSO:\n!XXXX, sospechoso bajo custodia, con uno hacia la estación [32 MRS - 5 LM - 29 VS]."
+  ],
+  "TÁCTICOS": [
+    "RESPONDER TACTICO:\n!XXXX, márcame en ruta, código tres hacia TAC 1.",
+    "CÓDIGO CUATRO ADAM:\n!XXXX, gestióname el código cuatro adam sobre la situación de TAC 1.",
+    "PEDIR GRABACIONES DISPAROS:\n!XXXX, despacho, gestiona todas las grabaciones de los oficiales involucrados en disparos de la situacion de TAC 1.",
+    "CLAVE DAVID:\n!XXXX, despacho, gestioname miembros de la METRO en TAC 1, CLAVE DAVID ACTIVA."
+  ],
+  "MÉDICA": [
+    "1º DISPATCH LSES:\n#LSPD BCC, LSES, oficiales requieren unidad medica urgentemente por persona herida, se gestiona ubicación via interno.", 
+    "2º CANCELAR DISPATCH LSES:\n#LSPD BCC, LSES, desestimen la ultima solicitud, unidades medicas locales acudieron al lugar."
+  ],
+  "FEDERALES": [
+    "1º SOLICITAR:\n#LSPD BCC, FIB, oficiales requieren de agentes federales para asignación de delitos federales, estación [Nº ESTACIÓN], confirmar asistencia.",
+    "2º CANCELAR:\n#LSPD BCC, FIB, desestimen la ultima solicitud de agentes federales, se procede de manera interna. "
+  ]
+}
