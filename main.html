@@ -314,7 +314,29 @@
             };
         
             let allMessagesByCategory = {}, currentCategory = null;
-        
+            const backgrounds = [
+              'imagenes/USMS1.png',
+              'imagenes/USMS2.png',
+              'imagenes/USMS3.png',
+              'imagenes/USMS4.png',
+              'imagenes/USMS5.png',
+              'imagenes/USMS6.png',
+              'imagenes/USMS7.png',
+              'imagenes/USMS8.png',
+              'imagenes/USMS9.png',
+              'imagenes/USMS10.png'
+            ];
+
+            let currentIndex = 0;
+
+            function cambiarFondo() {
+              document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+              currentIndex = (currentIndex + 1) % backgrounds.length;
+            }
+
+            // Cambia cada 60 segundos
+            setInterval(cambiarFondo, 60000);
+            window.addEventListener('DOMContentLoaded', cambiarFondo);
             // URL del worker con la whitelist
             const WHITELIST_WORKER_URL = 'https://fastradio-usms.sergioramonlopezmadrid.workers.dev/';
         
