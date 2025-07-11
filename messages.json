@@ -15,8 +15,8 @@
     "CLAVE DAVID:\n!XXXX, despacho, gestioname miembros de la METRO en TAC 1, CLAVE DAVID ACTIVA."
   ],
   "MÉDICA": [
-    "1º DISPATCH LSES:\n#LSPD BCC, LSES, oficiales requieren unidad medica urgentemente por persona herida, se gestiona ubicación via interno.", 
-    "2º CANCELAR DISPATCH LSES:\n#LSPD BCC, LSES, desestimen la ultima solicitud, unidades medicas locales acudieron al lugar."
+    "1º DISPATCH LSES:\n#USMS CC, LSES, deputies requieren unidad medica urgentemente por persona herida, se gestiona ubicación via interno.", 
+    "2º CANCELAR DISPATCH LSES:\n#USMS CC, LSES, desestimen la ultima solicitud, unidades medicas locales acudieron al lugar."
   ],
   "FEDERALES": [
     "1º SOLICITAR:\n#LSPD BCC, FIB, oficiales requieren de agentes federales para asignación de delitos federales, estación [Nº ESTACIÓN], confirmar asistencia.",
